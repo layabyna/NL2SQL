@@ -1,0 +1,6 @@
+langchain
+langgraph
+python-dotenv
+google-generativeai
+sqlalchemy
+typing_extensions
