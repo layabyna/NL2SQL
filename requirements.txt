@@ -1,6 +1,10 @@
 langchain
+langchain_community
+langchain_core
 langgraph
 python-dotenv
+langchain-google-genai
 google-generativeai
 sqlalchemy
 typing_extensions
+flask

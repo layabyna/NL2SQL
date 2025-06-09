@@ -1,3 +1,4 @@
+
 # Natural Language to SQL Query Engine using LangGraph, LangChain & Gemini
 
 This project enables users to ask natural language questions about a database and receive accurate answers by automatically generating and executing SQL queries. It uses Google's Gemini LLM, LangChain tools, and LangGraph for a structured, state-driven flow.
@@ -9,6 +10,7 @@ This project enables users to ask natural language questions about a database an
 - Converts user questions to SQL queries using Gemini 2.0.
 - Executes queries against an SQLite database (`Chinook.db`).
 - Returns readable answers from SQL results.
+- Offers a Flask API endpoint `/ask` for programmatic use.
 - Manages flow using a LangGraph `StateGraph` pipeline.
 
 ---
@@ -19,6 +21,8 @@ This project enables users to ask natural language questions about a database an
 - **LangChain** – Toolkit for prompt engineering & SQL tools  
 - **Gemini API (Google GenAI)** – Language model for query generation  
 - **SQLite** – Sample database backend (`Chinook.db`)  
+- **Flask** – API server  
+- **Docker** – Containerized deployment  
 - **Python** – Core logic and orchestration  
 - **dotenv** – Load API keys securely from `.env`  
 
@@ -28,21 +32,23 @@ This project enables users to ask natural language questions about a database an
 
 ```
 .
-├── main.py          # Core project logic
+├── app.py           # Flask API
+├── Nl2Sql.py        # Core NL-to-SQL logic
 ├── Chinook.db       # SQLite sample database
+├── Dockerfile       # Docker setup
 ├── .env             # Environment variables
 └── requirements.txt # Python dependencies
 ```
 
 ---
 
-## Setup Instructions
+## Setup Instructions (Manual)
 
 ### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/your-username/NL2SQL.git
-cd nl2sql-gemini
+cd NL2SQL
 ```
 
 ### 2. Install Dependencies
@@ -61,13 +67,41 @@ API=your_gemini_api_key_here
 
 ---
 
-## How to Run
+## Run Locally (Manual)
 
 ```bash
-python NL2SQL.py
+python app.py
 ```
 
-You will see step-by-step outputs of query generation, execution, and response.
+The API will be available at:  
+`http://127.0.0.1:5000/ask`  
+
+Send a POST request with JSON like:
+
+```json
+{
+  "question": "List all employees"
+}
+```
+
+---
+
+## Docker Instructions
+
+### 1. Build the Docker Image
+
+```bash
+docker build -t nl2sql-api .
+```
+
+### 2. Run the Container
+
+```bash
+docker run -p 5000:5000 --env-file .env nl2sql-api
+```
+
+Now, access the API at:  
+`http://localhost:5000/ask`
 
 ---
 
@@ -92,14 +126,14 @@ There are 8 employees. Their names are: Andrew Adams, Nancy Edwards, ...
 
 ## Notes
 
-- Only specific table and column names are used — no `SELECT *`.
-- Top-K limit is enforced unless specified by the user.
-- Easily extendable to other databases or LLMs.
+- Avoids `SELECT *` by default.
+- Limits results unless instructed otherwise.
+- Easily extensible for other LLMs or SQL engines.
 
 ---
 
 ## To-Do
 
-- Add error handling for invalid SQL
-- Add support for multiple database dialects
-- Integrate with Streamlit or Gradio for a UI
+- Add error handling for malformed input
+- Support PostgreSQL or MySQL
+- Add web UI using Streamlit or Gradio

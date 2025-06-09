@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 from typing_extensions import TypedDict
 from langchain_community.utilities import SQLDatabase
+from pydantic import BaseModel, Field
 
 load_dotenv()
 
@@ -74,11 +75,10 @@ for message in query_prompt_template.messages:
 
 
 # Class to generate Sql query by the llm
-class QueryOutput(TypedDict):
-    """Generated SQL query."""
 
 # query is of string and has some meta data.
-    query: Annotated[str, ..., "Syntactically valid SQL query."]
+class QueryOutput(BaseModel):
+    query: str = Field(..., description="Syntactically valid SQL query.")
 
 
 def write_query(state: State):
@@ -96,7 +96,8 @@ def write_query(state: State):
 
     structured_llm = llm.with_structured_output(QueryOutput)
     result = structured_llm.invoke(prompt)
-    return {"query": result["query"]}
+    return {"query": result.query}
+
 
 
 '''telling the model to produce a query as an output, 
@@ -143,7 +144,8 @@ graph_builder = StateGraph(State).add_sequence(
 graph_builder.add_edge(START, "write_query")
 graph = graph_builder.compile()
 
-for step in graph.stream(
-    {"question": "List all employees"}, stream_mode="updates"
-):
-    print(step)
+def database_question(question):
+    steps = list(graph.stream({"question": question}, stream_mode="updates"))
+    print(steps)
+    return steps
+        
